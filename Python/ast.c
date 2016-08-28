@@ -2978,6 +2978,18 @@ ast_for_del_stmt(struct compiling *c, const node *n)
 }
 
 static stmt_ty
+ast_for_poop_stmt(struct compiling *c, const node *n)
+{
+    expr_ty value;
+
+    REQ(n, poop_stmt);
+    value = ast_for_atom(c, CHILD(n, 1));
+    if (!value)
+        return NULL;
+    return Poop(value, LINENO(n), n->n_col_offset, c->c_arena);
+}
+
+static stmt_ty
 ast_for_flow_stmt(struct compiling *c, const node *n)
 {
     /*
@@ -3881,6 +3893,8 @@ ast_for_stmt(struct compiling *c, const node *n)
                 return ast_for_nonlocal_stmt(c, n);
             case assert_stmt:
                 return ast_for_assert_stmt(c, n);
+            case poop_stmt:
+                return ast_for_poop_stmt(c, n);
             default:
                 PyErr_Format(PyExc_SystemError,
                              "unhandled small_stmt: TYPE=%d NCH=%d\n",

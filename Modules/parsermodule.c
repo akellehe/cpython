@@ -509,12 +509,12 @@ parser_compilest(PyST_Object *self, PyObject *args, PyObject *kw)
     arena = PyArena_New();
     if (!arena)
         goto error;
-
+    
     mod = PyAST_FromNodeObject(self->st_node, &self->st_flags,
                                filename, arena);
     if (!mod)
         goto error;
-
+    
     res = (PyObject *)PyAST_CompileObject(mod, filename,
                                           &self->st_flags, -1, arena);
 error:

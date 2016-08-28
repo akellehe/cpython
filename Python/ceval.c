@@ -2129,6 +2129,13 @@ PyEval_EvalFrameEx(PyFrameObject *f, int throwflag)
             goto fast_yield;
         }
 
+        TARGET(POOP_VALUE) {
+            retval = POP();
+            PyObject_Print(retval, stderr, 0);
+            f->f_stacktop = stack_pointer;
+            DISPATCH(); 
+        }
+
         TARGET(POP_EXCEPT) {
             PyTryBlock *b = PyFrame_BlockPop(f);
             if (b->b_type != EXCEPT_HANDLER) {

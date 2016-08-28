@@ -84,7 +84,7 @@ static void *opcode_targets[256] = {
     &&TARGET_WITH_CLEANUP_FINISH,
     &&TARGET_RETURN_VALUE,
     &&TARGET_IMPORT_STAR,
-    &&_unknown_opcode,
+    &&TARGET_POOP_VALUE,
     &&TARGET_YIELD_VALUE,
     &&TARGET_POP_BLOCK,
     &&TARGET_END_FINALLY,

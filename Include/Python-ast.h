@@ -64,12 +64,12 @@ struct _mod {
 };
 
 enum _stmt_kind {FunctionDef_kind=1, AsyncFunctionDef_kind=2, ClassDef_kind=3,
-                  Return_kind=4, Delete_kind=5, Assign_kind=6,
-                  AugAssign_kind=7, For_kind=8, AsyncFor_kind=9, While_kind=10,
-                  If_kind=11, With_kind=12, AsyncWith_kind=13, Raise_kind=14,
-                  Try_kind=15, Assert_kind=16, Import_kind=17,
-                  ImportFrom_kind=18, Global_kind=19, Nonlocal_kind=20,
-                  Expr_kind=21, Pass_kind=22, Break_kind=23, Continue_kind=24};
+                  Return_kind=4, Delete_kind=5, Poop_kind=6, Assign_kind=7,
+                  AugAssign_kind=8, For_kind=9, AsyncFor_kind=10,
+                  While_kind=11, If_kind=12, With_kind=13, AsyncWith_kind=14,
+                  Raise_kind=15, Try_kind=16, Assert_kind=17, Import_kind=18,
+                  ImportFrom_kind=19, Global_kind=20, Nonlocal_kind=21,
+                  Expr_kind=22, Pass_kind=23, Break_kind=24, Continue_kind=25};
 struct _stmt {
     enum _stmt_kind kind;
     union {
@@ -104,6 +104,10 @@ struct _stmt {
         struct {
             asdl_seq *targets;
         } Delete;
+        
+        struct {
+            expr_ty value;
+        } Poop;
         
         struct {
             asdl_seq *targets;
@@ -455,6 +459,8 @@ stmt_ty _Py_Return(expr_ty value, int lineno, int col_offset, PyArena *arena);
 #define Delete(a0, a1, a2, a3) _Py_Delete(a0, a1, a2, a3)
 stmt_ty _Py_Delete(asdl_seq * targets, int lineno, int col_offset, PyArena
                    *arena);
+#define Poop(a0, a1, a2, a3) _Py_Poop(a0, a1, a2, a3)
+stmt_ty _Py_Poop(expr_ty value, int lineno, int col_offset, PyArena *arena);
 #define Assign(a0, a1, a2, a3, a4) _Py_Assign(a0, a1, a2, a3, a4)
 stmt_ty _Py_Assign(asdl_seq * targets, expr_ty value, int lineno, int
                    col_offset, PyArena *arena);
