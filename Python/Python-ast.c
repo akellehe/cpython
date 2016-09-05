@@ -73,6 +73,10 @@ _Py_IDENTIFIER(targets);
 static char *Delete_fields[]={
     "targets",
 };
+static PyTypeObject *Poop_type;
+static char *Poop_fields[]={
+    "value",
+};
 static PyTypeObject *Assign_type;
 static char *Assign_fields[]={
     "targets",
@@ -869,6 +873,8 @@ static int init_types(void)
     if (!Return_type) return 0;
     Delete_type = make_type("Delete", stmt_type, Delete_fields, 1);
     if (!Delete_type) return 0;
+    Poop_type = make_type("Poop", stmt_type, Poop_fields, 1);
+    if (!Poop_type) return 0;
     Assign_type = make_type("Assign", stmt_type, Assign_fields, 2);
     if (!Assign_type) return 0;
     AugAssign_type = make_type("AugAssign", stmt_type, AugAssign_fields, 3);
@@ -1348,6 +1354,25 @@ Delete(asdl_seq * targets, int lineno, int col_offset, PyArena *arena)
         return NULL;
     p->kind = Delete_kind;
     p->v.Delete.targets = targets;
+    p->lineno = lineno;
+    p->col_offset = col_offset;
+    return p;
+}
+
+stmt_ty
+Poop(expr_ty value, int lineno, int col_offset, PyArena *arena)
+{
+    stmt_ty p;
+    if (!value) {
+        PyErr_SetString(PyExc_ValueError,
+                        "field value is required for Poop");
+        return NULL;
+    }
+    p = (stmt_ty)PyArena_Malloc(arena, sizeof(*p));
+    if (!p)
+        return NULL;
+    p->kind = Poop_kind;
+    p->v.Poop.value = value;
     p->lineno = lineno;
     p->col_offset = col_offset;
     return p;
@@ -2704,6 +2729,15 @@ ast2obj_stmt(void* _o)
         value = ast2obj_list(o->v.Delete.targets, ast2obj_expr);
         if (!value) goto failed;
         if (_PyObject_SetAttrId(result, &PyId_targets, value) == -1)
+            goto failed;
+        Py_DECREF(value);
+        break;
+    case Poop_kind:
+        result = PyType_GenericNew(Poop_type, NULL, NULL);
+        if (!result) goto failed;
+        value = ast2obj_expr(o->v.Poop.value);
+        if (!value) goto failed;
+        if (_PyObject_SetAttrId(result, &PyId_value, value) == -1)
             goto failed;
         Py_DECREF(value);
         break;
@@ -4439,6 +4473,28 @@ obj2ast_stmt(PyObject* obj, stmt_ty* out, PyArena* arena)
             return 1;
         }
         *out = Delete(targets, lineno, col_offset, arena);
+        if (*out == NULL) goto failed;
+        return 0;
+    }
+    isinstance = PyObject_IsInstance(obj, (PyObject*)Poop_type);
+    if (isinstance == -1) {
+        return 1;
+    }
+    if (isinstance) {
+        expr_ty value;
+
+        if (_PyObject_HasAttrId(obj, &PyId_value)) {
+            int res;
+            tmp = _PyObject_GetAttrId(obj, &PyId_value);
+            if (tmp == NULL) goto failed;
+            res = obj2ast_expr(tmp, &value, arena);
+            if (res != 0) goto failed;
+            Py_CLEAR(tmp);
+        } else {
+            PyErr_SetString(PyExc_TypeError, "required field \"value\" missing from Poop");
+            return 1;
+        }
+        *out = Poop(value, lineno, col_offset, arena);
         if (*out == NULL) goto failed;
         return 0;
     }
@@ -7513,6 +7569,7 @@ PyInit__ast(void)
         NULL;
     if (PyDict_SetItemString(d, "Delete", (PyObject*)Delete_type) < 0) return
         NULL;
+    if (PyDict_SetItemString(d, "Poop", (PyObject*)Poop_type) < 0) return NULL;
     if (PyDict_SetItemString(d, "Assign", (PyObject*)Assign_type) < 0) return
         NULL;
     if (PyDict_SetItemString(d, "AugAssign", (PyObject*)AugAssign_type) < 0)

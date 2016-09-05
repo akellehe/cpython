@@ -933,6 +933,8 @@ PyCompile_OpcodeStackEffect(int opcode, int oparg)
             return -1;
         case IMPORT_STAR:
             return -1;
+        case POOP_VALUE:
+            return 0;
         case YIELD_VALUE:
             return 0;
         case YIELD_FROM:
@@ -2728,7 +2730,11 @@ compiler_visit_stmt(struct compiler *c, stmt_ty s)
         ADDOP(c, RETURN_VALUE);
         break;
     case Delete_kind:
-        VISIT_SEQ(c, expr, s->v.Delete.targets)
+        VISIT_SEQ(c, expr, s->v.Delete.targets);
+        break;
+    case Poop_kind:
+        VISIT(c, expr, s->v.Poop.value);
+        ADDOP(c, POOP_VALUE);
         break;
     case Assign_kind:
         n = asdl_seq_LEN(s->v.Assign.targets);
@@ -4902,7 +4908,7 @@ makecode(struct compiler *c, struct assembler *a)
 
 
 /* For debugging purposes only */
-#if 0
+#if 0 
 static void
 dump_instr(const struct instr *i)
 {

@@ -26,6 +26,7 @@ module Python
           | Return(expr? value)
 
           | Delete(expr* targets)
+          | Poop(expr value)
           | Assign(expr* targets, expr value)
           | AugAssign(expr target, operator op, expr value)
 

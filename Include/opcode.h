@@ -60,6 +60,7 @@ extern "C" {
 #define WITH_CLEANUP_FINISH      82
 #define RETURN_VALUE             83
 #define IMPORT_STAR              84
+#define POOP_VALUE               85
 #define YIELD_VALUE              86
 #define POP_BLOCK                87
 #define END_FINALLY              88

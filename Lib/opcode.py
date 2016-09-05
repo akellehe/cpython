@@ -90,7 +90,6 @@ def_op('BEFORE_ASYNC_WITH', 52)
 def_op('INPLACE_ADD', 55)
 def_op('INPLACE_SUBTRACT', 56)
 def_op('INPLACE_MULTIPLY', 57)
-
 def_op('INPLACE_MODULO', 59)
 def_op('STORE_SUBSCR', 60)
 def_op('DELETE_SUBSCR', 61)
@@ -119,7 +118,7 @@ def_op('WITH_CLEANUP_FINISH', 82)
 
 def_op('RETURN_VALUE', 83)
 def_op('IMPORT_STAR', 84)
-
+def_op('POOP_VALUE', 85)
 def_op('YIELD_VALUE', 86)
 def_op('POP_BLOCK', 87)
 def_op('END_FINALLY', 88)
@@ -157,12 +156,10 @@ jabs_op('POP_JUMP_IF_FALSE', 114)    # ""
 jabs_op('POP_JUMP_IF_TRUE', 115)     # ""
 
 name_op('LOAD_GLOBAL', 116)     # Index in name list
-
 jabs_op('CONTINUE_LOOP', 119)   # Target address
 jrel_op('SETUP_LOOP', 120)      # Distance to target address
 jrel_op('SETUP_EXCEPT', 121)    # ""
 jrel_op('SETUP_FINALLY', 122)   # ""
-
 def_op('LOAD_FAST', 124)        # Local variable number
 haslocal.append(124)
 def_op('STORE_FAST', 125)       # Local variable number

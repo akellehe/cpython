@@ -39,6 +39,15 @@ class RoundtripLegalSyntaxTestCase(unittest.TestCase):
     def check_suite(self, s):
         self.roundtrip(parser.suite, s)
 
+    def test_poop_statement(self):
+        self.check_suite("def f(): poop '1'")
+        self.check_suite("def f(): return; poop 1")
+        self.check_suite("def f(): poop 1; return")
+        self.check_suite("def f(): poop 1; return 1")
+        self.check_suite("def f():\n"
+                         "    for x in range(30):\n"
+                         "        poop x\n")
+
     def test_yield_statement(self):
         self.check_suite("def f(): yield 1")
         self.check_suite("def f(): yield")
