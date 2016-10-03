@@ -284,6 +284,66 @@ gc_list_move(PyGC_Head *node, PyGC_Head *list)
     node->gc.gc_next = list;
 }
 
+
+static PyObject *
+gc_print_thresholds()
+{
+    PyObject_Print(PyLong_FromLong(&generations[0].threshold));
+    printf(", ");
+    PyObject_Print(PyLong_FromLong(&generations[1].threshold));
+    printf(", ");
+    PyObject_Print(PyLong_FromLong(&generations[2].threshold));
+    printf(stdout, "\n");
+}
+
+
+static PyObject *
+gc_count_generation(PyObject *self, PyObject *args, PyObject *kws)
+{
+    static char *keywords[] = {"generation", NULL};
+    int genarg = NUM_GENERATIONS - 1;
+    PyGC_Head *gc;
+    PyGC_Head *list;
+    Py_ssize_t n;
+
+    if (!PyArg_ParseTupleAndKeywords(args, kws, "|i", keywords, &genarg))
+        return NULL;
+    else if (genarg < 0 || genarg >= NUM_GENERATIONS) {
+        PyErr_SetString(PyExc_ValueError, "invalid generation");
+        return NULL;
+    }
+    
+    list = GEN_HEAD(genarg);
+    for (gc = list->gc.gc_next; gc != list; gc = gc->gc.gc_next) {
+        n++; 
+    }
+
+    return PyLong_FromSsize_t(n);
+}
+
+static PyObject *
+gc_print_generation(PyObject *self, PyObject *args, PyObject *kws)
+{
+    static char *keywords[] = {"generation", NULL};
+    int genarg = NUM_GENERATIONS - 1;
+    PyGC_Head *gc;
+    PyGC_Head *list;
+
+    if (!PyArg_ParseTupleAndKeywords(args, kws, "|i", keywords, &genarg))
+        return NULL;
+    else if (genarg < 0 || genarg >= NUM_GENERATIONS) {
+        PyErr_SetString(PyExc_ValueError, "invalid generation");
+        return NULL;
+    }
+    
+    list = GEN_HEAD(genarg);
+    for (gc = list->gc.gc_next; gc != list; gc = gc->gc.gc_next) {
+        PyObject_Print(FROM_GC(gc), stdout, 0); 
+    }
+
+    return Py_None;
+}
+
 /* append list `from` onto list `to`; `from` becomes an empty list */
 static void
 gc_list_merge(PyGC_Head *from, PyGC_Head *to)
@@ -1130,6 +1190,7 @@ collect_generations(void)
     /* Find the oldest generation (highest numbered) where the count
      * exceeds the threshold.  Objects in the that generation and
      * generations younger than it will be collected. */
+    printf("Called collect_generations()\n");
     for (i = NUM_GENERATIONS-1; i >= 0; i--) {
         if (generations[i].count > generations[i].threshold) {
             /* Avoid quadratic performance degradation in number
@@ -1145,6 +1206,16 @@ collect_generations(void)
     }
     return n;
 }
+
+PyDoc_STRVAR(gc_count_generation__doc__,
+        "count_generation(<int>)\n"
+        "\n"
+        "Counts the number of objects in a given generation\n");
+
+PyDoc_STRVAR(gc_print_generation__doc__,
+        "print_generation(<int>)\n"
+        "\n"
+        "Prints the objects in the generation.");
 
 PyDoc_STRVAR(gc_enable__doc__,
 "enable() -> None\n"
@@ -1484,6 +1555,8 @@ gc_is_tracked(PyObject *self, PyObject *obj)
 PyDoc_STRVAR(gc__doc__,
 "This module provides access to the garbage collector for reference cycles.\n"
 "\n"
+"print_generation() -- Prints all the objects in a particular generation.\n"
+"count_generation() -- Prints the number of objects in a particular generation.\n"
 "enable() -- Enable automatic garbage collection.\n"
 "disable() -- Disable automatic garbage collection.\n"
 "isenabled() -- Returns true if automatic collection is enabled.\n"
@@ -1500,6 +1573,8 @@ PyDoc_STRVAR(gc__doc__,
 "get_referents() -- Return the list of objects that an object refers to.\n");
 
 static PyMethodDef GcMethods[] = {
+    {"print_generation",   (PyCFunction) gc_print_generation, METH_VARARGS | METH_KEYWORDS, gc_print_generation__doc__}, 
+    {"count_generation",   (PyCFunction) gc_count_generation, METH_VARARGS | METH_KEYWORDS, gc_count_generation__doc__}, 
     {"enable",             gc_enable,     METH_NOARGS,  gc_enable__doc__},
     {"disable",            gc_disable,    METH_NOARGS,  gc_disable__doc__},
     {"isenabled",          gc_isenabled,  METH_NOARGS,  gc_isenabled__doc__},
