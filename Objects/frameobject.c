@@ -621,6 +621,14 @@ PyFrame_New(PyThreadState *tstate, PyCodeObject *code, PyObject *globals,
         return NULL;
     }
 #endif
+
+    printf("Printing globals in PyFrame_New()\n");
+    PyObject_Print(globals, stdout, 0); 
+    printf("\n");
+    printf("Printing locals in PyFrame_New()\n");
+    PyObject_Print(locals, stdout, 0);
+    printf("\n");
+
     if (back == NULL || back->f_globals != globals) {
         builtins = _PyDict_GetItemId(globals, &PyId___builtins__);
         if (builtins) {

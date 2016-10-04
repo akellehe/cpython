@@ -2355,6 +2355,7 @@ PyEval_EvalFrameEx(PyFrameObject *f, int throwflag)
             PyObject *name = GETITEM(names, oparg);
             PyObject *locals = f->f_locals;
             PyObject *v;
+            printf("LOADING NAME %s\n", name);
             if (locals == NULL) {
                 PyErr_Format(PyExc_SystemError,
                              "no locals when loading %R", name);

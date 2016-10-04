@@ -741,12 +741,17 @@ analyze_block(PySTEntryObject *ste, PyObject *bound, PyObject *free,
      */
     if (ste->ste_type == ClassBlock) {
         /* Pass down known globals */
-        temp = PyNumber_InPlaceOr(newglobal, global);
+        /* This will result in `newglobal` being populated with the elements of `global`
+           since newglobal is {} and presumably there's something in global (when there
+           are existing global vars */
+        temp = PyNumber_InPlaceOr(newglobal, global); /* I think temp is just for error handling */ 
         if (!temp)
             goto error;
         Py_DECREF(temp);
         /* Pass down previously bound symbols */
         if (bound) {
+            /* Again; here bound contains variables bound in some context (enclosing?) TODO: Find 
+               out where these variables are bound from. */
             temp = PyNumber_InPlaceOr(newbound, bound);
             if (!temp)
                 goto error;
@@ -765,6 +770,9 @@ analyze_block(PySTEntryObject *ste, PyObject *bound, PyObject *free,
     if (ste->ste_type != ClassBlock) {
         /* Add function locals to bound set */
         if (ste->ste_type == FunctionBlock) {
+            /* InPlaceOr yields the elements in EITHER newbound 
+                OR local but that do not exist in both. This is also
+                known as the "outer union" */
             temp = PyNumber_InPlaceOr(newbound, local);
             if (!temp)
                 goto error;
