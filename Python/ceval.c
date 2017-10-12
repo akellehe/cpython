@@ -2942,7 +2942,7 @@ _PyEval_EvalFrameDefault(PyFrameObject *f, int throwflag)
                are not try/except/finally handlers, you may need
                to update the PyGen_NeedsFinalizing() function.
                */
-
+            printf("Opcode for BlockSetup %d\n", opcode);
             PyFrame_BlockSetup(f, opcode, INSTR_OFFSET() + oparg,
                                STACK_LEVEL());
             DISPATCH();
@@ -2976,6 +2976,7 @@ _PyEval_EvalFrameDefault(PyFrameObject *f, int throwflag)
             PyObject *res = POP();
             /* Setup the finally block before pushing the result
                of __aenter__ on the stack. */
+            printf("Opcode for BlockSetup %d\n", SETUP_FINALLY);
             PyFrame_BlockSetup(f, SETUP_FINALLY, INSTR_OFFSET() + oparg,
                                STACK_LEVEL());
             PUSH(res);
@@ -3003,6 +3004,7 @@ _PyEval_EvalFrameDefault(PyFrameObject *f, int throwflag)
                 goto error;
             /* Setup the finally block before pushing the result
                of __enter__ on the stack. */
+            printf("Opcode for BlockSetup %d\n", SETUP_FINALLY);
             PyFrame_BlockSetup(f, SETUP_FINALLY, INSTR_OFFSET() + oparg,
                                STACK_LEVEL());
 
@@ -3486,6 +3488,7 @@ fast_block_end:
                 PyObject *exc, *val, *tb;
                 int handler = b->b_handler;
                 /* Beware, this invalidates all b->b_* fields */
+                printf("Opcode for BlockSetup %d\n", EXCEPT_HANDLER);
                 PyFrame_BlockSetup(f, EXCEPT_HANDLER, -1, STACK_LEVEL());
                 PUSH(tstate->exc_traceback);
                 PUSH(tstate->exc_value);
